@@ -1,9 +1,13 @@
 package product_store.order;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.repository.CrudRepository;
+public interface OrderRepository extends JpaRepository<Order, String> {
 
-public interface OrderRepository extends CrudRepository<OrderModel, String>  {
+    List<Order> findByIdAccount(String idAccount);
 
+    Optional<Order> findByIdAndIdAccount(String id, String idAccount);
 }

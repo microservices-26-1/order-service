@@ -1,11 +1,30 @@
 package product_store.order;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.experimental.Accessors;
+import jakarta.persistence.*;
+import lombok.*;
 
-@Data
-@Builder @Accessors(chain = true, fluent = true)
+@Entity
+@Table(name = "tb_item")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Item {
-    
+
+    @Id
+    private String id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_order", nullable = false)
+    private Order order;
+
+    @Column(name = "id_product", nullable = false)
+    private String idProduct;
+
+    @Column(nullable = false)
+    private Integer quantity;
+
+    @Column(nullable = false)
+    private Float total;
 }
