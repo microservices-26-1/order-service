@@ -1,1 +1,1 @@
-CREATE INDEX idx_email_sha256 ON accounts (email, password_sha256);
+CREATE INDEX idx_item_id_order ON orders.tb_item (id_order);

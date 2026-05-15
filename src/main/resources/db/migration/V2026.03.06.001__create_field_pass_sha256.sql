@@ -1,2 +1,1 @@
-ALTER TABLE accounts.accounts
-ADD COLUMN password_sha256 VARCHAR(64) NOT NULL;
+CREATE INDEX idx_order_id_account ON orders.tb_order (id_account);

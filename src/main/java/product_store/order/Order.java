@@ -1,20 +1,3 @@
-// package product_store.order;
-
-// import java.util.List;
-
-// import lombok.Builder;
-// import lombok.Data;
-// import lombok.experimental.Accessors;
-
-// @Data
-// @Builder @Accessors(chain = true, fluent = true)
-// public class Order {
-
-//     private String id;
-//     private List<Item> items;
-    
-// }
-
 package product_store.order;
 
 import jakarta.persistence.*;
@@ -24,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "tb_order")
+@Table(name = "tb_order", schema = "orders")
 @Getter
 @Setter
 @NoArgsConstructor

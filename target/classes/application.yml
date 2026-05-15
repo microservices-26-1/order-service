@@ -1,21 +1,24 @@
 server:
   port: 8080
-  
+
 spring:
   application:
-    name: account
+    name: order-service
 
   datasource:
-    url: jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_DB}
-    username: ${DATABASE_USERNAME}
-    password: ${DATABASE_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-
-  flyway:
-    baseline-on-migrate: true
-    schemas: accounts
+    url: jdbc:postgresql://db:5432/order_db
+    username: postgres
+    password: postgres
 
   jpa:
+    hibernate:
+      ddl-auto: validate
     properties:
       hibernate:
-        default_schema: accounts
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: orders   
+
+  flyway:
+    enabled: true
+    schemas: orders             
+    locations: classpath:db/migration
