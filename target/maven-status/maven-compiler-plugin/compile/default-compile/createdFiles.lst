@@ -1,0 +1,12 @@
+product_store\order\ExchangeClient$ExchangeResponse.class
+product_store\order\Item$ItemBuilder.class
+product_store\order\OrderResource.class
+product_store\order\Order$OrderBuilder.class
+product_store\order\OrderService.class
+product_store\order\Item.class
+product_store\order\OrderApplication.class
+product_store\order\OrderParser.class
+product_store\order\OrderModel.class
+product_store\order\OrderRepository.class
+product_store\order\Order.class
+product_store\order\ExchangeClient.class
