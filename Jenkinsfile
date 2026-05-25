@@ -1,10 +1,15 @@
 pipeline {
     agent any
     environment {
-        SERVICE = 'order-service'
-        NAME    = "aaninhabc/order-service"
+        SERVICE = 'order'
+        NAME    = "aaninhabc/${env.SERVICE}"
     }
     stages {
+        stage('Dependecies') {
+            steps {
+                build job: 'order', wait: true
+            }
+        }
         stage('Build') {
             steps {
                 sh 'mvn -B -DskipTests clean package'

@@ -6,9 +6,9 @@ spring:
     name: order-service
 
   datasource:
-    url: jdbc:postgresql://db:5432/order_db
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://db:5432/store
+    username: ${DATABASE_USERNAME:store}
+    password: ${DATABASE_PASSWORD:devpass}
 
   jpa:
     hibernate:
@@ -16,9 +16,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        default_schema: orders   
+        default_schema: orders
 
   flyway:
     enabled: true
-    schemas: orders             
+    schemas: orders
     locations: classpath:db/migration
