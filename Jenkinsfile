@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         SERVICE = 'order-service'
-        NAME    = "aaninhabc/order-service"
+        NAME    = "youcancallmegus/${env.SERVICE}"
     }
     stages {
         stage('Build') {
