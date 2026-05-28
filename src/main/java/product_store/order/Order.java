@@ -3,6 +3,7 @@ package product_store.order;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,8 +25,8 @@ public class Order {
     @Column(nullable = false)
     private LocalDateTime date;
 
-    @Column(nullable = false)
-    private Float total;
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal total;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Item> items;

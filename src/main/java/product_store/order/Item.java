@@ -3,6 +3,8 @@ package product_store.order;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "tb_item", schema = "orders")
 @Getter
@@ -25,6 +27,6 @@ public class Item {
     @Column(nullable = false)
     private Integer quantity;
 
-    @Column(nullable = false)
-    private Float total;
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal total;
 }

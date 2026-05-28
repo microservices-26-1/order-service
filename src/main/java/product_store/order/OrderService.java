@@ -3,12 +3,15 @@ package product_store.order;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import product_store.product.ProductController;
 import product_store.product.ProductDTO;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +22,8 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final ProductController productController; // ← era ProductClient, agora usa o módulo product diretamente
-    private final ExchangeClient exchangeClient;       // ← fica por enquanto, vira ExchangeController quando o colega terminar
+    private final ProductController productController;
+    private final ExchangeClient exchangeClient;
     private final OrderParser orderParser;
 
     public OrderOut create(String idAccount, OrderIn orderIn) {
@@ -31,10 +34,9 @@ public class OrderService {
             .build();
 
         List<Item> items = new ArrayList<>();
-        float orderTotal = 0f;
+        BigDecimal orderTotal = BigDecimal.ZERO;
 
         for (OrderItemIn itemIn : orderIn.items()) {
-            // ProductController.findById retorna ResponseEntity<ProductDTO>, por isso o .getBody()
             ProductDTO product;
             try {
                 ResponseEntity<ProductDTO> response = productController.findById(itemIn.idProduct());
@@ -48,19 +50,23 @@ public class OrderService {
                     "Product not found: " + itemIn.idProduct());
             }
 
-            float itemTotal = product.price() * itemIn.quantity();
-            orderTotal += itemTotal;
+            BigDecimal price = BigDecimal.valueOf(product.price());
+            BigDecimal itemTotal = price
+                .multiply(BigDecimal.valueOf(itemIn.quantity()))
+                .setScale(2, RoundingMode.HALF_UP);
+
+            orderTotal = orderTotal.add(itemTotal);
 
             items.add(Item.builder()
                 .id(UUID.randomUUID().toString())
                 .order(order)
                 .idProduct(product.id())
                 .quantity(itemIn.quantity())
-                .total(Math.round(itemTotal * 100f) / 100f)
+                .total(itemTotal)
                 .build());
         }
 
-        order.setTotal(Math.round(orderTotal * 100f) / 100f);
+        order.setTotal(orderTotal.setScale(2, RoundingMode.HALF_UP));
         order.setItems(items);
 
         return orderParser.toOut(orderRepository.save(order));
@@ -73,7 +79,6 @@ public class OrderService {
             .toList();
     }
 
-    @SuppressWarnings("deprecation")
     public OrderOut findById(String id, String idAccount, String currency) {
         Order order = orderRepository.findByIdAndIdAccount(id, idAccount)
             .orElseThrow(() -> new ResponseStatusException(
@@ -81,14 +86,14 @@ public class OrderService {
             ));
 
         if (currency == null || currency.equalsIgnoreCase("USD")) {
-            return orderParser.toOut(order, 1.0f);
+            return orderParser.toOut(order, BigDecimal.ONE);
         }
 
         try {
             ExchangeClient.ExchangeResponse rate = exchangeClient.getRate("USD", currency.toUpperCase());
-            return orderParser.toOut(order, rate.sell());
+            return orderParser.toOut(order, BigDecimal.valueOf(rate.sell()));
         } catch (FeignException e) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+            throw new ResponseStatusException(HttpStatusCode.valueOf(422),
                 "Currency not supported: " + currency);
         }
     }

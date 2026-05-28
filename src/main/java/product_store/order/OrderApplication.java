@@ -3,13 +3,9 @@ package product_store.order;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import product_store.product.ProductController;
 
-@SpringBootApplication
-@EnableFeignClients(clients = {
-    ProductController.class
-    // ExchangeController.class  → adicionar quando o colega terminar o módulo exchange
-})
+@SpringBootApplication(scanBasePackages = {"product_store.order", "product_store.product"})
+@EnableFeignClients(basePackages = {"product_store.order", "product_store.product"})
 public class OrderApplication {
     public static void main(String[] args) {
         SpringApplication.run(OrderApplication.class, args);

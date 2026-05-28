@@ -6,9 +6,9 @@ spring:
     name: order-service
 
   datasource:
-    url: jdbc:postgresql://db:5432/order_db
-    username: postgres
-    password: postgres
+    url: ${DATABASE_URL:jdbc:postgresql://db:5432/store}
+    username: ${DATABASE_USERNAME:store}
+    password: ${DATABASE_PASSWORD:devpass}
 
   jpa:
     hibernate:
@@ -16,9 +16,34 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        default_schema: orders   
+        default_schema: orders
 
   flyway:
     enabled: true
-    schemas: orders             
+    schemas: orders
     locations: classpath:db/migration
+
+  # ── Bottleneck: Caching (Redis) ──────────────────────────────
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 60000   # TTL padrão: 60 segundos
+
+# ── Bottleneck: Observability (Prometheus / Grafana) ─────────────
+management:
+  endpoints:
+    web:
+      base-path: /order/actuator
+      exposure:
+        include: [ 'health', 'info', 'prometheus', 'metrics' ]
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: order-service
