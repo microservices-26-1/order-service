@@ -196,7 +196,7 @@ spec:
     spec:
       containers:
         - name: order
-          image: aaninhabc/order-service:v5
+          image: youcancallmegus/order-service
           ports:
             - containerPort: 8080
           envFrom:
