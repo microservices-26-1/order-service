@@ -25,7 +25,7 @@ public class Order {
     @Column(nullable = false)
     private LocalDateTime date;
 
-    @Column(nullable = false, precision = 19, scale = 2)
+    @Column(nullable = false, columnDefinition = "NUMERIC(10,2)")
     private BigDecimal total;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)

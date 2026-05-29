@@ -27,6 +27,6 @@ public class Item {
     @Column(nullable = false)
     private Integer quantity;
 
-    @Column(nullable = false, precision = 19, scale = 2)
+    @Column(nullable = false, columnDefinition = "NUMERIC(10,2)")
     private BigDecimal total;
 }

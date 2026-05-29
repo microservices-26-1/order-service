@@ -1,13 +1,40 @@
 # ============================================================
-# ORDER-SERVICE - Kubernetes Manifest
-# Inclui: ConfigMap, PostgreSQL, Redis,
-#         Deployment, Service, HPA
+# STORAGE CLASS (STANDARD EBS CSI)
 # ============================================================
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: order-ebs-sc
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  type: gp3
+  encrypted: "true"
+allowedTopologies:
+  - matchLabelExpressions:
+      - key: topology.ebs.csi.aws.com/zone
+        values:
+          - us-east-2a
+          - us-east-2b
 
 ---
-# -------------------------------------------------------------------
+# ============================================================
+# SECRET
+# ============================================================
+apiVersion: v1
+kind: Secret
+metadata:
+  name: order-secret
+type: Opaque
+stringData:
+  DATABASE_PASSWORD: devpass
+
+---
+# ============================================================
 # CONFIGMAP
-# -------------------------------------------------------------------
+# ============================================================
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -21,9 +48,9 @@ data:
   EXCHANGE_SERVICE_URL: http://exchange-service:8080
 
 ---
-# ===================================================================
-# POSTGRESQL - PersistentVolumeClaim
-# ===================================================================
+# ============================================================
+# POSTGRES PVC
+# ============================================================
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -31,14 +58,15 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  storageClassName: order-ebs-sc
   resources:
     requests:
       storage: 1Gi
 
 ---
-# -------------------------------------------------------------------
-# POSTGRESQL - Deployment
-# -------------------------------------------------------------------
+# ============================================================
+# POSTGRES DEPLOYMENT
+# ============================================================
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -84,9 +112,9 @@ spec:
             claimName: postgres-order-pvc
 
 ---
-# -------------------------------------------------------------------
-# POSTGRESQL - Service
-# -------------------------------------------------------------------
+# ============================================================
+# POSTGRES SERVICE
+# ============================================================
 apiVersion: v1
 kind: Service
 metadata:
@@ -101,9 +129,9 @@ spec:
   type: ClusterIP
 
 ---
-# ===================================================================
-# REDIS - Caching
-# ===================================================================
+# ============================================================
+# REDIS DEPLOYMENT
+# ============================================================
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -132,6 +160,9 @@ spec:
               memory: "256Mi"
 
 ---
+# ============================================================
+# REDIS SERVICE
+# ============================================================
 apiVersion: v1
 kind: Service
 metadata:
@@ -146,9 +177,9 @@ spec:
   type: ClusterIP
 
 ---
-# ===================================================================
-# ORDER-SERVICE - Deployment
-# ===================================================================
+# ============================================================
+# ORDER DEPLOYMENT
+# ============================================================
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -194,9 +225,9 @@ spec:
             periodSeconds: 15
 
 ---
-# -------------------------------------------------------------------
-# ORDER-SERVICE - Service
-# -------------------------------------------------------------------
+# ============================================================
+# ORDER SERVICE
+# ============================================================
 apiVersion: v1
 kind: Service
 metadata:
@@ -211,10 +242,9 @@ spec:
   type: ClusterIP
 
 ---
-# ===================================================================
-# HPA - Auto Scaling
-# Escala de 2 a 5 pods quando CPU > 70% ou memória > 80%
-# ===================================================================
+# ============================================================
+# HPA
+# ============================================================
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
